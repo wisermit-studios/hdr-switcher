@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
 import com.wisermit.hdrswitcher.di.AppModule
+import com.wisermit.hdrswitcher.framework.Log
 import com.wisermit.hdrswitcher.ui.FluentWindow
 import com.wisermit.hdrswitcher.ui.SystemTray
 import com.wisermit.hdrswitcher.ui.main.MainScreen
@@ -31,6 +32,8 @@ private val WINDOW_SIZE = DpSize(
 )
 
 fun main() = application {
+    Log.level = Log.Level.Test
+
     KoinApplication(
         application = {
             modules(AppModule.modules)
