@@ -70,7 +70,7 @@ private object Command {
                 "Select-Object -ExpandProperty InstanceName | " +
                 "ForEach-Object { (\$_ -split '\\\\')[1] }"
 
-    fun getFileDescription(file: File) = "(Get-Item '$file').VersionInfo.FileDescription"
+    fun getFileDescription(file: File) = "(Get-Item \\\"$file\\\").VersionInfo.FileDescription"
 
     fun getHdrMonitorData(deviceId: String) =
         "Get-ChildItem \"$MONITOR_DATA_STORE_REG_PATH\" |\n" +
