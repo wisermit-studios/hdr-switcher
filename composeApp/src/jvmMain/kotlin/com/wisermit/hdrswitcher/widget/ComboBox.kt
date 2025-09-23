@@ -33,14 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wisermit.hdrswitcher.ui.theme.ThemeDefaults
 import com.wisermit.hdrswitcher.utils.fluentSurface
-import com.wisermit.hdrswitcher.utils.toDp
 
 @Composable
 fun <T> ComboBox(
@@ -49,14 +49,19 @@ fun <T> ComboBox(
     onSelected: (T) -> Unit,
     enabled: Boolean = true,
 ) {
+    val density = LocalDensity.current
     var expanded by remember { mutableStateOf(false) }
 
     // TODO: Improve.
-    var menuSize by remember { mutableStateOf(IntSize.Zero) }
+    var menuSize by remember { mutableStateOf(DpSize.Zero) }
 
     Box(
         modifier = Modifier.onGloballyPositioned { coordinates ->
-            menuSize = coordinates.size
+            menuSize = with(density) {
+                with(coordinates.size) {
+                    DpSize(width.toDp(), height.toDp())
+                }
+            }
         },
     ) {
         InteractiveBox(
@@ -94,19 +99,17 @@ fun <T> ComboBox(
             }
         }
 
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            offset = DpOffset(0.dp, -menuSize.height.toDp()),
+            offset = DpOffset(0.dp, -menuSize.height),
             shape = shapes.small,
             border = BorderStroke(
                 width = ThemeDefaults.BorderStrokeWidth,
                 color = colorScheme.background,
             ),
-            modifier = Modifier
-                .defaultMinSize(
-                    minWidth = menuSize.width.toDp(),
-                ),
+            modifier = Modifier.defaultMinSize(minWidth = menuSize.width),
             content = {
                 entries.forEach { entry ->
                     val isSelected = entry.key == value

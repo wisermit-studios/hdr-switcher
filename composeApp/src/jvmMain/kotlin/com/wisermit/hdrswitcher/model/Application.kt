@@ -1,11 +1,15 @@
 package com.wisermit.hdrswitcher.model
 
 import androidx.compose.runtime.Immutable
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import java.nio.file.Path
-import kotlin.io.path.name
-import kotlin.io.path.pathString
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import java.io.File
 
 enum class HdrMode {
     Default, On, Off;
@@ -14,15 +18,19 @@ enum class HdrMode {
 @Immutable
 @Serializable
 data class Application(
-    val path: String,
+    @Serializable(with = FileSerializer::class)
+    val file: File,
     val description: String,
     val hdr: HdrMode = HdrMode.Default,
 ) {
     @Transient
-    val id: String = path
+    val id: String = file.path
+}
 
-    constructor(path: Path, description: String?) : this(
-        path = path.pathString,
-        description = description ?: path.name.substringBeforeLast("."),
-    )
+private object FileSerializer : KSerializer<File> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("File", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: File) = encoder.encodeString(value.path)
+    override fun deserialize(decoder: Decoder) = File(decoder.decodeString())
 }

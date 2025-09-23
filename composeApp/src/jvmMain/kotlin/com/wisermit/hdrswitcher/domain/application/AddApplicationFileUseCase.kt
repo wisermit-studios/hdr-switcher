@@ -20,8 +20,9 @@ class AddApplicationFileUseCase(
             throw AppError.UnsupportedFile(file.name)
         }
         val application = Application(
-            path = file.toPath(),
+            file = file,
             description = systemManager.getFileDescription(file)
+                ?: file.name.substringBeforeLast(".")
         )
         return applicationStorage.add(application)
     }

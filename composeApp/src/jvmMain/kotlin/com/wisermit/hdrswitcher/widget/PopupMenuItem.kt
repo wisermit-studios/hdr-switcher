@@ -49,10 +49,7 @@ fun PopupMenuItem(
 
         Spacer(Modifier.width(MenuItemDefaults.IconPadding))
 
-        Text(
-            title,
-            style = typography.bodyMedium
-        )
+        Text(title, style = typography.bodyMedium)
     }
 }
 

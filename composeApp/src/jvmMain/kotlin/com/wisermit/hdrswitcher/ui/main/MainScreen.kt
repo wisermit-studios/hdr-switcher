@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HdrOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
@@ -44,6 +45,7 @@ import com.wisermit.hdrswitcher.widget.ScrollViewer
 import hdrswitcher.composeapp.generated.resources.Res
 import hdrswitcher.composeapp.generated.resources.add_application
 import hdrswitcher.composeapp.generated.resources.drag_and_drop_application
+import hdrswitcher.composeapp.generated.resources.hdr
 import hdrswitcher.composeapp.generated.resources.main_applications_label
 import hdrswitcher.composeapp.generated.resources.no_hdr_message
 import hdrswitcher.composeapp.generated.resources.off
@@ -106,10 +108,18 @@ fun MainScreen(
                     val hdrStatus by viewModel.hdrStatus.collectAsState()
 
                     ConfigItem(
-                        headline = "HDR",
-                        icon = Icons.Default.HdrOn,
-                        supporting = if (hdrStatus == null)
-                            stringResource(Res.string.no_hdr_message) else null,
+                        headlineContent = { Text(stringResource(Res.string.hdr)) },
+                        supportingContent = {
+                            if (hdrStatus == null) {
+                                Text(stringResource(Res.string.no_hdr_message))
+                            }
+                        },
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.HdrOn,
+                                contentDescription = null,
+                            )
+                        },
                         trailingContent = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically

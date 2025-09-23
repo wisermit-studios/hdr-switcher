@@ -34,10 +34,7 @@ fun Button(
         shape = shapes.extraSmall,
         onClick = onClick,
     ) {
-        Text(
-            text,
-            fontWeight = FontWeight.Normal,
-        )
+        Text(text, fontWeight = FontWeight.Normal)
     }
 }
 
