@@ -1,4 +1,4 @@
-package com.wisermit.hdrswitcher.infrastructure.systemmanager
+package com.wisermit.hdrswitcher.system.manager
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

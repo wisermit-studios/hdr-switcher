@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
-import com.wisermit.hdrswitcher.infrastructure.Platform
+import com.wisermit.hdrswitcher.system.Platform
 import com.wisermit.hdrswitcher.widget.PopupMenuItem
 import hdrswitcher.composeapp.generated.resources.Res
 import hdrswitcher.composeapp.generated.resources.app_icon

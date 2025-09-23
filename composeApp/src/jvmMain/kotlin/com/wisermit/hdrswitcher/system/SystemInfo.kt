@@ -1,4 +1,4 @@
-package com.wisermit.hdrswitcher.infrastructure
+package com.wisermit.hdrswitcher.system
 
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util

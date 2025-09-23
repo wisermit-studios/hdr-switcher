@@ -1,8 +1,8 @@
-package com.wisermit.hdrswitcher.infrastructure.systemmanager
+package com.wisermit.hdrswitcher.system.manager
 
 import com.wisermit.hdrswitcher.framework.Log
-import com.wisermit.hdrswitcher.infrastructure.InputSimulator
-import com.wisermit.hdrswitcher.infrastructure.PowerShell
+import com.wisermit.hdrswitcher.system.InputSimulator
+import com.wisermit.hdrswitcher.system.PowerShell
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,12 +1,12 @@
 package com.wisermit.hdrswitcher.di
 
-import com.wisermit.hdrswitcher.infrastructure.MacOsSystemInfo
-import com.wisermit.hdrswitcher.infrastructure.Platform
-import com.wisermit.hdrswitcher.infrastructure.SystemInfo
-import com.wisermit.hdrswitcher.infrastructure.WindowsSystemInfo
-import com.wisermit.hdrswitcher.infrastructure.systemmanager.MacOsSystemManager
-import com.wisermit.hdrswitcher.infrastructure.systemmanager.SystemManager
-import com.wisermit.hdrswitcher.infrastructure.systemmanager.WindowsSystemManager
+import com.wisermit.hdrswitcher.system.MacOsSystemInfo
+import com.wisermit.hdrswitcher.system.Platform
+import com.wisermit.hdrswitcher.system.SystemInfo
+import com.wisermit.hdrswitcher.system.WindowsSystemInfo
+import com.wisermit.hdrswitcher.system.manager.MacOsSystemManager
+import com.wisermit.hdrswitcher.system.manager.SystemManager
+import com.wisermit.hdrswitcher.system.manager.WindowsSystemManager
 import org.koin.dsl.module
 
 val platformModule = when (Platform.Current) {

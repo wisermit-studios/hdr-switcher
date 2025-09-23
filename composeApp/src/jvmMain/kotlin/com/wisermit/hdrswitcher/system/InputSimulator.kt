@@ -1,4 +1,4 @@
-package com.wisermit.hdrswitcher.infrastructure
+package com.wisermit.hdrswitcher.system
 
 import java.awt.Robot
 

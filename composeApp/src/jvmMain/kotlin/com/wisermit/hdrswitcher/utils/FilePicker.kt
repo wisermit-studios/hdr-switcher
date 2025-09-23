@@ -1,6 +1,6 @@
 package com.wisermit.hdrswitcher.utils
 
-import com.wisermit.hdrswitcher.infrastructure.SystemInfo
+import com.wisermit.hdrswitcher.system.SystemInfo
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
