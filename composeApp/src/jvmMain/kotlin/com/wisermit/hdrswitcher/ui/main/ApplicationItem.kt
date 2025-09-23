@@ -2,16 +2,23 @@ package com.wisermit.hdrswitcher.ui.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WebAsset
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import com.wisermit.hdrswitcher.model.Application
 import com.wisermit.hdrswitcher.model.HdrMode
+import com.wisermit.hdrswitcher.utils.FileUtils
 import com.wisermit.hdrswitcher.utils.fluentSurface
 import com.wisermit.hdrswitcher.widget.Button
 import com.wisermit.hdrswitcher.widget.ComboBox
@@ -24,27 +31,44 @@ import hdrswitcher.composeapp.generated.resources.off
 import hdrswitcher.composeapp.generated.resources.on
 import hdrswitcher.composeapp.generated.resources.remove
 import hdrswitcher.composeapp.generated.resources.remove_from_list
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ApplicationItem(
     item: Application,
-    onApplicationHdrChange: (Application, HdrMode) -> Unit,
-    onDelete: (Application) -> Unit,
+    onHdrChange: (HdrMode) -> Unit,
+    onDelete: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fluentSurface(
-                borderColor = ConfigItemDefaults.outlineColor,
-                backgroundColor = ListItemDefaults.containerColor
-            )
+        modifier = Modifier.fluentSurface()
     ) {
         ConfigItem(
-            // TODO: Icon.
             backgroundEnabled = false,
-            icon = Icons.Default.WebAsset,
-            headline = item.description,
-            supporting = item.path,
+            headlineContent = { Text(item.description) },
+            supportingContent = { Text(item.file.path) },
+            leadingContent = {
+                val icon by produceState<ImageBitmap?>(initialValue = null, item.file) {
+                    value = withContext(Dispatchers.IO) {
+                        FileUtils.getIcon(item.file)
+                    }
+                }
+
+                icon?.let {
+                    Icon(
+                        it,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Unspecified,
+                        contentDescription = null
+                    )
+                } ?: run {
+                    Icon(
+                        Icons.Default.WebAsset,
+                        contentDescription = null
+                    )
+                }
+            }
         )
 
         HorizontalDivider(color = colorScheme.background)
@@ -52,7 +76,7 @@ fun ApplicationItem(
         ConfigItem(
             backgroundEnabled = false,
             padding = ApplicationItemDefaults.SubItemPadding,
-            headline = stringResource(Res.string.hdr),
+            headlineContent = { Text(stringResource(Res.string.hdr)) },
             trailingContent = {
                 ComboBox(
                     value = item.hdr,
@@ -61,9 +85,7 @@ fun ApplicationItem(
                         HdrMode.On to stringResource(Res.string.on),
                         HdrMode.Off to stringResource(Res.string.off),
                     ),
-                    onSelected = {
-                        onApplicationHdrChange(item, it)
-                    },
+                    onSelected = onHdrChange,
                 )
             }
         )
@@ -73,11 +95,13 @@ fun ApplicationItem(
         ConfigItem(
             backgroundEnabled = false,
             padding = ApplicationItemDefaults.SubItemPadding,
-            headline = stringResource(Res.string.remove_from_list),
+            headlineContent = {
+                Text(stringResource(Res.string.remove_from_list))
+            },
             trailingContent = {
                 Button(
                     stringResource(Res.string.remove),
-                    onClick = { onDelete(item) },
+                    onClick = onDelete,
                 )
             }
         )

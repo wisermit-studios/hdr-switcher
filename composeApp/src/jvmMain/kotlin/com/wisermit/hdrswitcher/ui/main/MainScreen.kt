@@ -13,19 +13,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HdrOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
@@ -33,8 +35,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.wisermit.hdrswitcher.ui.theme.ThemeDefaults
 import com.wisermit.hdrswitcher.utils.DialogUtils
 import com.wisermit.hdrswitcher.utils.FilePicker
@@ -44,14 +45,15 @@ import com.wisermit.hdrswitcher.widget.ScrollViewer
 import hdrswitcher.composeapp.generated.resources.Res
 import hdrswitcher.composeapp.generated.resources.add_application
 import hdrswitcher.composeapp.generated.resources.drag_and_drop_application
+import hdrswitcher.composeapp.generated.resources.hdr
 import hdrswitcher.composeapp.generated.resources.main_applications_label
 import hdrswitcher.composeapp.generated.resources.no_hdr_message
 import hdrswitcher.composeapp.generated.resources.off
 import hdrswitcher.composeapp.generated.resources.on
 import hdrswitcher.composeapp.generated.resources.open
 import hdrswitcher.composeapp.generated.resources.or
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
@@ -62,26 +64,16 @@ import java.io.File
 fun MainScreen(
     viewModel: MainViewModel = koinInject(),
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.showErrorDialog.collect {
-            withContext(Dispatchers.Main) {
-                DialogUtils.showErrorDialogFor(it)
-            }
-        }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(coroutineScope) {
+        viewModel.showErrorDialog.onEach {
+            DialogUtils.showErrorDialogFor(it)
+        }.launchIn(coroutineScope)
     }
 
-    val lifeCycleOwner = LocalLifecycleOwner.current
-
-    DisposableEffect(lifeCycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.refreshHdrStatus()
-            }
-        }
-        lifeCycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifeCycleOwner.lifecycle.removeObserver(observer)
-        }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshHdrStatus()
     }
 
     Scaffold {
@@ -116,10 +108,18 @@ fun MainScreen(
                     val hdrStatus by viewModel.hdrStatus.collectAsState()
 
                     ConfigItem(
-                        headline = "HDR",
-                        icon = Icons.Default.HdrOn,
-                        supporting = if (hdrStatus == null)
-                            stringResource(Res.string.no_hdr_message) else null,
+                        headlineContent = { Text(stringResource(Res.string.hdr)) },
+                        supportingContent = {
+                            if (hdrStatus == null) {
+                                Text(stringResource(Res.string.no_hdr_message))
+                            }
+                        },
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.HdrOn,
+                                contentDescription = null,
+                            )
+                        },
                         trailingContent = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -156,13 +156,18 @@ fun MainScreen(
                             style = typography.labelLarge,
                         )
                     }
-                    items(applications.size) { index ->
+                    items(
+                        applications,
+                        key = { it.id },
+                    ) { app ->
                         ApplicationItem(
-                            item = applications[index],
-                            onApplicationHdrChange = { app, hdrMode ->
+                            item = app,
+                            onHdrChange = { hdrMode ->
                                 viewModel.setApplicationHdr(app, hdrMode)
                             },
-                            onDelete = viewModel::delete
+                            onDelete = {
+                                viewModel.delete(app)
+                            }
                         )
                     }
                 }

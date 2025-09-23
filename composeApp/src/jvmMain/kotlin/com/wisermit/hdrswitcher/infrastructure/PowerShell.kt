@@ -20,10 +20,8 @@ object PowerShell {
             if (exitCode == 0) {
                 result
             } else {
-                val errorMessage = "PowerShell exited with code $exitCode." +
-                        "\nCommand: $commands" +
-                        "\nError: $error"
-                throw ProcessException(errorMessage)
+                val message = "PowerShell exited with code $exitCode."
+                throw ProcessException(message, commands, error)
             }
         }
     }

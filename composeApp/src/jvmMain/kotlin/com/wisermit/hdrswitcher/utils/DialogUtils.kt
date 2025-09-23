@@ -15,7 +15,6 @@ enum class DialogType(val jOptionPane: Int) {
     Default(JOptionPane.DEFAULT_OPTION);
 }
 
-// TODO: Beautify error messages.
 object DialogUtils {
 
     fun showDialog(

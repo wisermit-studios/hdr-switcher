@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toAwtImage
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -32,6 +31,7 @@ import hdrswitcher.composeapp.generated.resources.exit
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.awt.GraphicsEnvironment
+import java.awt.MouseInfo
 import java.awt.SystemTray
 import java.awt.TrayIcon
 import java.awt.event.MouseEvent
@@ -97,7 +97,6 @@ private fun FluentTray(
     onAction: () -> Unit = {},
     onPopupMenuRequest: (offset: DpOffset) -> Unit,
 ) {
-    val density = LocalDensity.current
     val currentOnAction by rememberUpdatedState(onAction)
 
     val awtIcon = remember(icon) {
@@ -113,21 +112,18 @@ private fun FluentTray(
             }
 
             addMouseListener(object : MouseListener {
-                override fun mouseClicked(p0: MouseEvent?) {}
-                override fun mousePressed(p0: MouseEvent?) {}
-                override fun mouseEntered(p0: MouseEvent?) {}
-                override fun mouseExited(p0: MouseEvent?) {}
-                override fun mouseReleased(event: MouseEvent?) {
-                    event?.let {
-                        if (event.button == 3) {
-                            val offset = with(density) {
-                                DpOffset(
-                                    x = event.x.toDp(),
-                                    y = event.y.toDp(),
-                                )
-                            }
-                            onPopupMenuRequest(offset)
+                override fun mouseClicked(p0: MouseEvent) = Unit
+                override fun mousePressed(p0: MouseEvent) = Unit
+                override fun mouseEntered(p0: MouseEvent) = Unit
+                override fun mouseExited(p0: MouseEvent) = Unit
+                override fun mouseReleased(event: MouseEvent) {
+                    if (event.isPopupTrigger) {
+                        // Get Point from MouseInfo, since MouseEvent is inconsistent
+                        // across Windows and macOS.
+                        val offset = with(MouseInfo.getPointerInfo().location) {
+                            DpOffset(x = x.dp, y = y.dp)
                         }
+                        onPopupMenuRequest(offset)
                     }
                 }
             })
