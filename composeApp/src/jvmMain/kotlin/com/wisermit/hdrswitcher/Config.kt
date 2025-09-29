@@ -16,5 +16,3 @@ class Config(val systemInfo: SystemInfo) {
     val applicationsFile: File
         get() = userDataPath.add(APPLICATIONS_FILE_NAME).toFile()
 }
-
-

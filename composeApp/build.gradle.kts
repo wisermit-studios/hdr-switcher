@@ -1,10 +1,11 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
+//    alias(libs.plugins.composeHotReload)
     kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
@@ -52,9 +53,34 @@ compose.desktop {
         mainClass = "com.wisermit.hdrswitcher.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.wisermit.hdrswitcher"
-            packageVersion = "1.0.0"
+            targetFormats(TargetFormat.Msi, TargetFormat.Dmg)
+            packageName = BuildConfig.AppCompose.PACKAGE_NAME
+            packageVersion = BuildConfig.AppCompose.PACKAGE_VERSION
+
+            windows {
+                menu = true
+                shortcut = false
+            }
+        }
+    }
+
+    afterEvaluate {
+        tasks.named<Copy>("jvmProcessResources") {
+            val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release") }
+
+            val taskName = when (isReleaseTask) {
+                true -> Tasks.PROCESS_SYSTEM_MANAGER_RELEASE
+                false -> Tasks.PROCESS_SYSTEM_MANAGER_DEBUG
+            }
+
+            from(rootProject.tasks.named(taskName))
+        }
+        tasks.named<AbstractJPackageTask>("packageReleaseMsi") {
+            destinationDir.set(project.appComposeReleaseDir)
+        }
+        tasks.named<AbstractJPackageTask>("createReleaseDistributable") {
+            destinationDir.set(project.appComposeReleaseDir)
         }
     }
 }
+

@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet", "dotnet", "{71E6E750-85FD-B5BC-4321-E01377EC6231}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SystemManager", "SystemManager", "{A5D5659E-E415-0D68-C81A-A8239013AC31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemManager", "dotnet\SystemManager\src\SystemManager.csproj", "{7FDAC027-3E2D-B79E-CF2A-A9868997E798}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FDAC027-3E2D-B79E-CF2A-A9868997E798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FDAC027-3E2D-B79E-CF2A-A9868997E798}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FDAC027-3E2D-B79E-CF2A-A9868997E798}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FDAC027-3E2D-B79E-CF2A-A9868997E798}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5D5659E-E415-0D68-C81A-A8239013AC31} = {71E6E750-85FD-B5BC-4321-E01377EC6231}
+		{7FDAC027-3E2D-B79E-CF2A-A9868997E798} = {A5D5659E-E415-0D68-C81A-A8239013AC31}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16A02475-C9BE-4877-9660-CA18E4BCB2DC}
+	EndGlobalSection
+EndGlobal
