@@ -1,6 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
-import org.jetbrains.compose.internal.utils.getLocalProperty
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -13,6 +12,8 @@ plugins {
 kotlin {
     jvmToolchain(21)
     jvm()
+
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
         all {
@@ -37,43 +38,23 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.kotlinx.serialization.json)
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
-        val jvmCommon by creating {
-            dependsOn(commonMain.get())
+
+        jvmMain {
+            println("building for buildTarget ${buildTarget.value}")
+
+            val jvmPlatformTarget = "jvm${buildTarget.name}"
+            kotlin.srcDir("$projectDir/src/$jvmPlatformTarget/kotlin")
+            kotlin.srcDir("$projectDir/src/$jvmPlatformTarget/resources")
 
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(compose.desktop.currentOs)
                 implementation(libs.net.java.jna)
                 implementation(libs.net.java.jna.platform)
-            }
-        }
-        val jvmWindows by creating {
-            dependsOn(jvmCommon)
-        }
-
-        val jvmMacOS by creating {
-            dependsOn(jvmCommon)
-        }
-
-        afterEvaluate {
-            val startTask = gradle.startParameter.taskNames.firstOrNull()
-
-            jvmMain {
-                if (startTask == null) {
-                    when (LocalProperties.buildTarget) {
-                        BuildTarget.Windows -> dependsOn(jvmWindows)
-                        BuildTarget.MacOS -> dependsOn(jvmMacOS)
-                    }
-                } else {
-                    if (startTask.endsWith("Dmg")) {
-                        dependsOn(jvmMacOS)
-                    } else {
-                        dependsOn(jvmWindows)
-                    }
-                }
             }
         }
     }
@@ -95,17 +76,34 @@ compose.desktop {
         }
     }
 
+    val systemManagerWindowsDebugTask =
+        tasks.register<Copy>("processSystemManagerDebugForJvmWindows") {
+            description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
+
+            dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_DEBUG_EXE" })
+
+            from(systemManagerOutputDebugFile)
+            into(appComposeWindowsResourceBinDir)
+        }
+
+    val systemManagerWindowsReleaseTask =
+        tasks.register<Copy>("processSystemManagerReleaseForJvmWindows") {
+            description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
+
+            dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_RELEASE_EXE" })
+
+            from(systemManagerOutputReleaseFile)
+            into(appComposeWindowsResourceBinDir)
+        }
+
     afterEvaluate {
-        tasks.named<Copy>("jvmProcessResources") {
-            if (LocalProperties.buildTarget == BuildTarget.Windows) {
-                val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release") }
-
-                val taskName = when (isReleaseTask) {
-                    true -> Tasks.PROCESS_SYSTEM_MANAGER_RELEASE
-                    false -> Tasks.PROCESS_SYSTEM_MANAGER_DEBUG
+        tasks.named("compileKotlinJvm") {
+            if (buildTarget == BuildTarget.Windows) {
+                val systemManagerTask = when (buildType) {
+                    BuildType.Debug -> systemManagerWindowsDebugTask
+                    BuildType.Release -> systemManagerWindowsReleaseTask
                 }
-
-//                from(rootProject.tasks.named(taskName))
+                dependsOn(systemManagerTask)
             }
         }
         tasks.named<AbstractJPackageTask>("packageReleaseMsi") {
@@ -116,32 +114,3 @@ compose.desktop {
         }
     }
 }
-
-object LocalProperties
-
-val LocalProperties.buildType: BuildType
-    get() = when (val value = getLocalProperty("buildType")) {
-        null, "debug" -> BuildType.Debug
-        "release" -> BuildType.Release
-        else -> {
-            throw Exception("Invalid buildType '$value'. Use 'debug' or 'release'")
-        }
-    }
-
-val LocalProperties.buildTarget: BuildTarget
-    get() = when (val value = getLocalProperty("buildTarget")) {
-        "windows" -> BuildTarget.Windows
-        "macos" -> BuildTarget.MacOS
-        null -> {
-            val isWindows = System.getProperty("os.name").startsWith("win")
-            if (isWindows) BuildTarget.Windows else BuildTarget.MacOS
-        }
-
-        else -> {
-            throw Exception("Invalid buildTarget '$value'. Use 'windows' or 'macos'")
-        }
-    }
-
-
-enum class BuildType { Debug, Release }
-enum class BuildTarget { Windows, MacOS }

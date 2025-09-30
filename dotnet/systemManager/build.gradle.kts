@@ -23,7 +23,7 @@ tasks.register<Exec>(Tasks.SystemManager.PUBLISH_DEBUG_EXE) {
         },
     )
 
-    val outputFile = project.systemManagerDebugFile
+    val outputFile = project.systemManagerOutputDebugFile
 
     outputs.dir(outputFile.parentFile)
 
@@ -41,7 +41,7 @@ tasks.register<Exec>(Tasks.SystemManager.PUBLISH_RELEASE_EXE) {
         },
     )
 
-    val outputFile = project.systemManagerReleaseFile
+    val outputFile = project.systemManagerOutputReleaseFile
 
     outputs.dir(outputFile.parentFile)
 
