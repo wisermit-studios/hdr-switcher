@@ -62,7 +62,9 @@ fun main() = application {
                 minimumSize = WINDOW_SIZE,
                 resizable = false,
                 onCloseRequest = {
-                    isVisible = false
+                    // FIXME: Hide instead of closing.
+                    exitApplication()
+//                    isVisible = false
                 },
             ) {
                 val coroutineScope = rememberCoroutineScope()

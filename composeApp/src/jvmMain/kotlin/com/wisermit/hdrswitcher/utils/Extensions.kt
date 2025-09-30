@@ -19,9 +19,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wisermit.hdrswitcher.ui.theme.ThemeDefaults
-import java.nio.file.Path
-
-fun Path.add(path: String): Path = resolve(path)
 
 @Composable
 fun Modifier.fluentSurface(

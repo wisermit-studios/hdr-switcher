@@ -2,8 +2,7 @@ package com.wisermit.hdrswitcher.system
 
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
-import com.wisermit.hdrswitcher.utils.add
-import java.nio.file.Path
+import java.io.File
 
 private val OS_NAME: String = System.getProperty("os.name")
 
@@ -27,10 +26,10 @@ abstract class SystemInfo {
     @Suppress("unused")
     val osName: String = OS_NAME
 
-    abstract val systemDrive: Path
+    abstract val systemDrive: File
 
-    val userHomePath: Path get() = Path.of(System.getProperty("user.home"))
-    abstract val appSettingsPath: Path
+    val userHomeDir: File get() = File(System.getProperty("user.home"))
+    abstract val appSettingsDir: File
 
     abstract val applicationExtension: String
 }
@@ -38,12 +37,12 @@ abstract class SystemInfo {
 internal class WindowsSystemInfo : SystemInfo() {
     override val platform: Platform = Platform.Windows
 
-    override val systemDrive: Path get() = Path.of(System.getenv("SystemDrive"))
+    override val systemDrive: File = File(System.getenv("SystemDrive"))
 
-    override val appSettingsPath: Path
+    override val appSettingsDir: File
         get() = Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_Documents)
-            ?.let { Path.of(it) }
-            ?: userHomePath.add("Documents")
+            ?.let(::File)
+            ?: File(userHomeDir, "Documents")
 
     override val applicationExtension = "exe"
 }
@@ -54,12 +53,10 @@ internal class WindowsSystemInfo : SystemInfo() {
 internal class MacOsSystemInfo : SystemInfo() {
     override val platform: Platform = Platform.MacOS
 
-    override val systemDrive: Path get() = Path.of("/")
+    override val systemDrive: File = File("/")
 
-    override val appSettingsPath: Path
-        get() = userHomePath
-            .add("Library")
-            .add("Application Support")
+    override val appSettingsDir: File
+        get() = File(userHomeDir, "Library/Application Support")
 
     override val applicationExtension = "app"
 }
