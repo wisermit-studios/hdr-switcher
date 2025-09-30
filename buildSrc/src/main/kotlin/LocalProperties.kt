@@ -17,22 +17,24 @@ class LocalProperties(rootProject: Project) {
             return BuildType.entries
                 .find { it.value == buildType }
                 ?: throw Exception(
-                    "Invalid $BUILD_TYPE '$buildType'. " +
-                            "Expected values: ${BuildType.entries.joinToString { it.value }}."
+                    "Invalid $BUILD_TYPE '$buildType'. Expected values: ${BuildType.entries}."
                 )
         }
 
     val buildTarget: BuildTarget
         get() {
             val buildTarget = properties[BUILD_TARGET]
-                ?: return BuildTarget.Windows
-                    .also { addProperty(BUILD_TARGET, it.value) }
+                ?: when (System.getProperty("os.name").startsWith("Mac")) {
+                    true -> BuildTarget.Macos
+                    else -> BuildTarget.Windows
+                }.also {
+                    addProperty(BUILD_TARGET, it.value)
+                }
 
             return BuildTarget.entries
                 .find { it.value == buildTarget }
                 ?: throw Exception(
-                    "Invalid $BUILD_TARGET '$buildTarget'. " +
-                            "Expected values: ${BuildTarget.entries.joinToString { it.value }}."
+                    "Invalid $BUILD_TARGET '$buildTarget'. Expected values: ${BuildTarget.entries}."
                 )
         }
 
@@ -47,8 +49,5 @@ class LocalProperties(rootProject: Project) {
     }
 }
 
-private var localPropertiesCache: LocalProperties? = null
-val Project.localProperties
-    get() = localPropertiesCache
-        ?: LocalProperties(rootProject).also { localPropertiesCache = it }
+val Project.localProperties get() = LocalProperties(rootProject)
 

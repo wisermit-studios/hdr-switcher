@@ -5,7 +5,7 @@ import com.wisermit.hdrswitcher.domain.UseCase
 import com.wisermit.hdrswitcher.framework.AppError
 import com.wisermit.hdrswitcher.model.Application
 import com.wisermit.hdrswitcher.system.SystemInfo
-import com.wisermit.hdrswitcher.system.manager.SystemManager
+import com.wisermit.hdrswitcher.system.SystemManager
 import java.io.File
 
 class AddApplicationFileUseCase(

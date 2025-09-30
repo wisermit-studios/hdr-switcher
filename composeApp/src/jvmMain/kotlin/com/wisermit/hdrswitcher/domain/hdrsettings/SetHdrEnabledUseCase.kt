@@ -1,7 +1,7 @@
 package com.wisermit.hdrswitcher.domain.hdrsettings
 
 import com.wisermit.hdrswitcher.domain.UseCase
-import com.wisermit.hdrswitcher.system.manager.SystemManager
+import com.wisermit.hdrswitcher.system.SystemManager
 import kotlinx.coroutines.flow.first
 
 class SetHdrEnabledUseCase(
