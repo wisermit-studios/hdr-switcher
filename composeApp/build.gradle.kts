@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
+import org.jetbrains.compose.internal.utils.getLocalProperty
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -39,11 +40,41 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
-        jvmMain.dependencies {
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(compose.desktop.currentOs)
-            implementation(libs.net.java.jna)
-            implementation(libs.net.java.jna.platform)
+        val jvmCommon by creating {
+            dependsOn(commonMain.get())
+
+            dependencies {
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(compose.desktop.currentOs)
+                implementation(libs.net.java.jna)
+                implementation(libs.net.java.jna.platform)
+            }
+        }
+        val jvmWindows by creating {
+            dependsOn(jvmCommon)
+        }
+
+        val jvmMacOS by creating {
+            dependsOn(jvmCommon)
+        }
+
+        afterEvaluate {
+            val startTask = gradle.startParameter.taskNames.firstOrNull()
+
+            jvmMain {
+                if (startTask == null) {
+                    when (LocalProperties.buildTarget) {
+                        BuildTarget.Windows -> dependsOn(jvmWindows)
+                        BuildTarget.MacOS -> dependsOn(jvmMacOS)
+                    }
+                } else {
+                    if (startTask.endsWith("Dmg")) {
+                        dependsOn(jvmMacOS)
+                    } else {
+                        dependsOn(jvmWindows)
+                    }
+                }
+            }
         }
     }
 }
@@ -66,14 +97,16 @@ compose.desktop {
 
     afterEvaluate {
         tasks.named<Copy>("jvmProcessResources") {
-            val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release") }
+            if (LocalProperties.buildTarget == BuildTarget.Windows) {
+                val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release") }
 
-            val taskName = when (isReleaseTask) {
-                true -> Tasks.PROCESS_SYSTEM_MANAGER_RELEASE
-                false -> Tasks.PROCESS_SYSTEM_MANAGER_DEBUG
+                val taskName = when (isReleaseTask) {
+                    true -> Tasks.PROCESS_SYSTEM_MANAGER_RELEASE
+                    false -> Tasks.PROCESS_SYSTEM_MANAGER_DEBUG
+                }
+
+//                from(rootProject.tasks.named(taskName))
             }
-
-            from(rootProject.tasks.named(taskName))
         }
         tasks.named<AbstractJPackageTask>("packageReleaseMsi") {
             destinationDir.set(project.appComposeReleaseDir)
@@ -84,3 +117,31 @@ compose.desktop {
     }
 }
 
+object LocalProperties
+
+val LocalProperties.buildType: BuildType
+    get() = when (val value = getLocalProperty("buildType")) {
+        null, "debug" -> BuildType.Debug
+        "release" -> BuildType.Release
+        else -> {
+            throw Exception("Invalid buildType '$value'. Use 'debug' or 'release'")
+        }
+    }
+
+val LocalProperties.buildTarget: BuildTarget
+    get() = when (val value = getLocalProperty("buildTarget")) {
+        "windows" -> BuildTarget.Windows
+        "macos" -> BuildTarget.MacOS
+        null -> {
+            val isWindows = System.getProperty("os.name").startsWith("win")
+            if (isWindows) BuildTarget.Windows else BuildTarget.MacOS
+        }
+
+        else -> {
+            throw Exception("Invalid buildTarget '$value'. Use 'windows' or 'macos'")
+        }
+    }
+
+
+enum class BuildType { Debug, Release }
+enum class BuildTarget { Windows, MacOS }
