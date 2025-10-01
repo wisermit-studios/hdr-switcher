@@ -1,68 +1,50 @@
-val taskGroup = "system manager"
 val projectWorkingDir = File("${projectDir}/src")
 
+interface Injected {
+    @get:Inject
+    val fs: FileSystemOperations
+}
+
 tasks.register<Exec>(Tasks.SystemManager.CLEAN) {
-    group = taskGroup
+    group = Tasks.SystemManager.GROUP
     workingDir = projectWorkingDir
 
     commandLine("dotnet", "clean")
 
+    val injected = project.objects.newInstance<Injected>()
+    val outputDir = systemManagerOutputDir
+
     doLast {
-        delete(buildOutput)
+        injected.fs.delete { delete(outputDir) }
     }
 }
 
-tasks.register<Exec>(Tasks.SystemManager.PUBLISH_DEBUG_EXE) {
-    group = taskGroup
-    workingDir = projectWorkingDir
+listOf(
+    "Debug" to project.systemManagerOutputDebugFile,
+    "Release" to project.systemManagerOutputReleaseFile,
+).forEach { (publishType, outputFile) ->
 
-    inputs.files(
-        fileTree(projectWorkingDir) {
-            exclude("**/bin/**")
-            exclude("**/obj/**")
-        },
-    )
+    tasks.register<Exec>("publish${publishType}Exe") {
+        group = Tasks.SystemManager.GROUP
+        workingDir = projectWorkingDir
 
-    val outputFile = project.systemManagerOutputDebugFile
+        inputs.files(
+            fileTree(projectWorkingDir) {
+                exclude("**/bin/**")
+                exclude("**/obj/**")
+            },
+        )
 
-    outputs.dir(outputFile.parentFile)
+        outputs.dir(outputFile.parent)
 
-    publishCommandLine(type = "Debug", outputFile = outputFile)
-}
-
-tasks.register<Exec>(Tasks.SystemManager.PUBLISH_RELEASE_EXE) {
-    group = taskGroup
-    workingDir = projectWorkingDir
-
-    inputs.files(
-        fileTree(projectWorkingDir) {
-            exclude("**/bin/**")
-            exclude("**/obj/**")
-        },
-    )
-
-    val outputFile = project.systemManagerOutputReleaseFile
-
-    outputs.dir(outputFile.parentFile)
-
-    publishCommandLine(type = "Release", outputFile = outputFile)
-
-    doLast {
-        println("The EXE is written to $outputFile.")
+        commandLine(
+            "dotnet",
+            "publish",
+            "-c", "$publishType,AssemblyName=${outputFile.name.substringBefore(".")}",
+            "-r", "win-x64",
+            "-p:PublishSingleFile=true",
+            "--self-contained", "false",
+            "-o", outputFile.parent,
+        )
     }
 }
-
-fun AbstractExecTask<*>.publishCommandLine(
-    type: String,
-    outputFile: File,
-    vararg command: Any,
-): AbstractExecTask<*> = commandLine(
-    "dotnet",
-    "publish",
-    "-c", "$type,AssemblyName=${outputFile.name.substringBefore(".")}",
-    "-r", "win-x64",
-    "-p:PublishSingleFile=true",
-    "--self-contained", "false",
-    "-o", outputFile.parent,
-    *command
-)

@@ -3,10 +3,10 @@ import org.gradle.api.Project
 import java.io.File
 
 private val Project.rootBuildDir: File get() = rootProject.layout.buildDirectory.asFile.get()
-val Project.buildOutput get() = File("${rootBuildDir}/output")
+val Project.buildOutputDir get() = File("${rootBuildDir}/output")
 
-private val Project.appComposeOutputDir get() = File("${buildOutput}/hdrSwitcher")
-private val Project.systemManagerOutputDir get() = File("${buildOutput}/systemManager")
+val Project.appComposeOutputDir get() = File("${buildOutputDir}/hdrSwitcher")
+val Project.systemManagerOutputDir get() = File("${buildOutputDir}/systemManager")
 
 val Project.systemManagerOutputDebugFile
     get() = File("$systemManagerOutputDir/debug", SystemManager.FILE_NAME)
