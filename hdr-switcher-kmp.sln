@@ -4,9 +4,9 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet", "dotnet", "{71E6E750-85FD-B5BC-4321-E01377EC6231}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SystemManager", "SystemManager", "{A5D5659E-E415-0D68-C81A-A8239013AC31}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "systemManager", "systemManager", "{A5D5659E-E415-0D68-C81A-A8239013AC31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemManager", "dotnet\SystemManager\src\SystemManager.csproj", "{7FDAC027-3E2D-B79E-CF2A-A9868997E798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemManager", "dotnet\systemManager\src\SystemManager.csproj", "{7FDAC027-3E2D-B79E-CF2A-A9868997E798}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +27,6 @@ Global
 		{7FDAC027-3E2D-B79E-CF2A-A9868997E798} = {A5D5659E-E415-0D68-C81A-A8239013AC31}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {16A02475-C9BE-4877-9660-CA18E4BCB2DC}
+		SolutionGuid = {ABC4B48F-D322-4AA9-84A7-D343E6C7F3EF}
 	EndGlobalSection
 EndGlobal
