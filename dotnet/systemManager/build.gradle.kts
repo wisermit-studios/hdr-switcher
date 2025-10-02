@@ -1,4 +1,4 @@
-val projectWorkingDir = File("${projectDir}/src")
+val projectSrcDir = File("${projectDir}/src")
 
 interface Injected {
     @get:Inject
@@ -7,7 +7,7 @@ interface Injected {
 
 tasks.register<Exec>(Tasks.SystemManager.CLEAN) {
     group = Tasks.SystemManager.GROUP
-    workingDir = projectWorkingDir
+    workingDir = projectSrcDir
 
     commandLine("dotnet", "clean")
 
@@ -26,16 +26,16 @@ listOf(
 
     tasks.register<Exec>("publish${publishType}Exe") {
         group = Tasks.SystemManager.GROUP
-        workingDir = projectWorkingDir
+        workingDir = projectSrcDir
 
         inputs.files(
-            fileTree(projectWorkingDir) {
+            fileTree(projectSrcDir) {
                 exclude("**/bin/**")
                 exclude("**/obj/**")
             },
         )
 
-        outputs.dir(outputFile.parent)
+        outputs.files(fileTree(outputFile.parent))
 
         commandLine(
             "dotnet",
@@ -46,5 +46,13 @@ listOf(
             "--self-contained", "false",
             "-o", outputFile.parent,
         )
+
+        val startTasks = startTasks
+
+        doLast {
+            if (startTasks.contains(name)) {
+                logger.lifecycle("The EXE is written to $outputFile.")
+            }
+        }
     }
 }

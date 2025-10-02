@@ -1,42 +1,24 @@
-import BuildConfig.SystemManager
 import org.gradle.api.Project
-import java.io.File
 
-private val Project.rootBuildDir: File get() = rootProject.layout.buildDirectory.asFile.get()
-val Project.buildOutputDir get() = File("${rootBuildDir}/output")
-
-val Project.appComposeOutputDir get() = File("${buildOutputDir}/hdrSwitcher")
-val Project.systemManagerOutputDir get() = File("${buildOutputDir}/systemManager")
-
-val Project.systemManagerOutputDebugFile
-    get() = File("$systemManagerOutputDir/debug", SystemManager.FILE_NAME)
-
-val Project.systemManagerOutputReleaseFile
-    get() = File("$systemManagerOutputDir/release", SystemManager.FILE_NAME)
-
-val Project.appComposeReleaseDir
-    get() = File("$appComposeOutputDir/release")
-
-val Project.appComposeWindowsResourceBinDir
-    get() = File("${rootDir}/composeApp/src/jvmWindows/resources/bin")
+val Project.startTasks: List<String> get() = gradle.startParameter.taskNames
 
 val Project.buildType: BuildType
     get() {
-        val startTask = gradle.startParameter.taskNames.firstOrNull()
         return when {
-            startTask == null || startTask == "run" -> localProperties.buildType
-            startTask.endsWith("Release") -> BuildType.Release
-            else -> BuildType.Debug
+            startTasks.any { it.contains("Release") } -> BuildType.Release
+            startTasks.any { it.contains("Debug") } -> BuildType.Debug
+            else -> localProperties.buildType
         }
     }
 
 val Project.buildTarget: BuildTarget
     get() {
-        val startTask = gradle.startParameter.taskNames.firstOrNull()
         return when {
-            startTask == null || startTask.startsWith("run") -> localProperties.buildTarget
-            startTask.endsWith("Dmg") -> BuildTarget.Macos
-            else -> BuildTarget.Windows
+            startTasks.any { it.endsWith("Dmg") } -> BuildTarget.Macos
+            startTasks.any { task ->
+                listOf("Msi", "Exe", "Distributable").any { task.endsWith(it) }
+            } -> BuildTarget.Windows
+            else -> localProperties.buildTarget
         }
     }
 

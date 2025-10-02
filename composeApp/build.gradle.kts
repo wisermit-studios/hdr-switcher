@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +7,8 @@ plugins {
 //    alias(libs.plugins.composeHotReload)
     kotlin("plugin.serialization") version libs.versions.kotlin
 }
+
+logger.lifecycle("Running with buildTarget '$buildTarget' and buildType '$buildType'.")
 
 kotlin {
     jvmToolchain(21)
@@ -44,11 +45,9 @@ kotlin {
         }
 
         jvmMain {
-            println("building for buildTarget ${buildTarget.value}")
-
             val jvmPlatformTarget = "jvm${buildTarget.name}"
             kotlin.srcDir("$projectDir/src/$jvmPlatformTarget/kotlin")
-            kotlin.srcDir("$projectDir/src/$jvmPlatformTarget/resources")
+            resources.srcDir("$projectDir/src/$jvmPlatformTarget/resources")
 
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
@@ -65,52 +64,47 @@ compose.desktop {
         mainClass = "com.wisermit.hdrswitcher.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Dmg)
+            targetFormats(TargetFormat.Msi)
             packageName = BuildConfig.AppCompose.PACKAGE_NAME
             packageVersion = BuildConfig.AppCompose.PACKAGE_VERSION
 
             windows {
                 menu = true
                 shortcut = false
+                dirChooser = true
             }
         }
     }
+}
 
-    val systemManagerWindowsDebugTask =
-        tasks.register<Copy>("processSystemManagerDebugForJvmWindows") {
-            description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
+val systemManagerWindowsDebugTask =
+    tasks.register<Copy>("processSystemManagerDebugForJvmWindows") {
+        description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
 
-            dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_DEBUG_EXE" })
+        dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_DEBUG_EXE" })
 
-            from(systemManagerOutputDebugFile)
-            into(appComposeWindowsResourceBinDir)
-        }
+        from(systemManagerOutputDebugFile)
+        into(appComposeWindowsResourceBinDir)
+    }
 
-    val systemManagerWindowsReleaseTask =
-        tasks.register<Copy>("processSystemManagerReleaseForJvmWindows") {
-            description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
+val systemManagerWindowsReleaseTask =
+    tasks.register<Copy>("processSystemManagerReleaseForJvmWindows") {
+        description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
 
-            dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_RELEASE_EXE" })
+        dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_RELEASE_EXE" })
 
-            from(systemManagerOutputReleaseFile)
-            into(appComposeWindowsResourceBinDir)
-        }
+        from(systemManagerOutputReleaseFile)
+        into(appComposeWindowsResourceBinDir)
+    }
 
-    afterEvaluate {
-        tasks.named("compileKotlinJvm") {
-            if (buildTarget == BuildTarget.Windows) {
-                val systemManagerTask = when (buildType) {
-                    BuildType.Debug -> systemManagerWindowsDebugTask
-                    BuildType.Release -> systemManagerWindowsReleaseTask
-                }
-                dependsOn(systemManagerTask)
+beforeEvaluate {
+    tasks.named("jvmProcessResources") {
+        if (buildTarget == BuildTarget.Windows) {
+            val systemManagerTask = when (buildType) {
+                BuildType.Debug -> systemManagerWindowsDebugTask
+                BuildType.Release -> systemManagerWindowsReleaseTask
             }
-        }
-        tasks.named<AbstractJPackageTask>("packageReleaseMsi") {
-            destinationDir.set(project.appComposeReleaseDir)
-        }
-        tasks.named<AbstractJPackageTask>("createReleaseDistributable") {
-            destinationDir.set(project.appComposeReleaseDir)
+            dependsOn(systemManagerTask)
         }
     }
 }
