@@ -14,8 +14,6 @@ kotlin {
     jvmToolchain(21)
     jvm()
 
-    applyDefaultHierarchyTemplate()
-
     sourceSets {
         all {
             languageSettings {
@@ -77,34 +75,28 @@ compose.desktop {
     }
 }
 
-val systemManagerWindowsDebugTask =
-    tasks.register<Copy>("processSystemManagerDebugForJvmWindows") {
-        description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
-
-        dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_DEBUG_EXE" })
-
-        from(systemManagerOutputDebugFile)
-        into(appComposeWindowsResourceBinDir)
+val systemManagerExe: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    attributes {
+        attribute(buildTypeAttr, buildType.toString())
     }
+}
 
-val systemManagerWindowsReleaseTask =
-    tasks.register<Copy>("processSystemManagerReleaseForJvmWindows") {
-        description = "Copy the SystemManger Debug EXE to jvmWindows Resource folder."
+dependencies {
+    systemManagerExe(projects.dotnet.systemManager)
+}
 
-        dependsOn(with(Tasks.SystemManager) { "$PATH:$PUBLISH_RELEASE_EXE" })
+val systemManagerWindowsTask = tasks.register<Copy>("importSystemManagerExeForJvmWindows") {
+    description = "Copy the SystemManger EXE to jvmWindows resource folder."
 
-        from(systemManagerOutputReleaseFile)
-        into(appComposeWindowsResourceBinDir)
-    }
+    from(systemManagerExe)
+    into("${projectDir}/src/jvmWindows/resources/bin")
+}
 
-beforeEvaluate {
+afterEvaluate {
     tasks.named("jvmProcessResources") {
         if (buildTarget == BuildTarget.Windows) {
-            val systemManagerTask = when (buildType) {
-                BuildType.Debug -> systemManagerWindowsDebugTask
-                BuildType.Release -> systemManagerWindowsReleaseTask
-            }
-            dependsOn(systemManagerTask)
+            dependsOn(systemManagerWindowsTask)
         }
     }
 }

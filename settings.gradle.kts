@@ -1,3 +1,9 @@
+@file:Suppress("UnstableApiUsage")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "HDRSwitcher"
+
 pluginManagement {
     repositories {
         google {
@@ -28,9 +34,6 @@ dependencyResolutionManagement {
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
-
-rootProject.name = "HDRSwitcher"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":composeApp")
 include(":dotnet:systemManager")

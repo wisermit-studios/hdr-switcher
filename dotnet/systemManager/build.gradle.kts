@@ -1,32 +1,29 @@
-val projectSrcDir = File("${projectDir}/src")
+import BuildConfig.SystemManager
 
-interface Injected {
-    @get:Inject
-    val fs: FileSystemOperations
+object Group {
+    const val BUILD = "build"
+    const val PUBLISHER = "publisher"
 }
 
-tasks.register<Exec>(Tasks.SystemManager.CLEAN) {
-    group = Tasks.SystemManager.GROUP
-    workingDir = projectSrcDir
+val projectSrcDir = layout.projectDirectory.dir("src")
+val outputsDir = layout.buildDirectory.dir("outputs")
 
+tasks.register<Exec>("clean") {
+    group = Group.BUILD
+    setWorkingDir(projectSrcDir)
     commandLine("dotnet", "clean")
-
-    val injected = project.objects.newInstance<Injected>()
-    val outputDir = systemManagerOutputDir
-
-    doLast {
-        injected.fs.delete { delete(outputDir) }
-    }
 }
 
 listOf(
-    "Debug" to project.systemManagerOutputDebugFile,
-    "Release" to project.systemManagerOutputReleaseFile,
-).forEach { (publishType, outputFile) ->
+    BuildType.Debug,
+    BuildType.Release,
+).map { buildType ->
 
-    tasks.register<Exec>("publish${publishType}Exe") {
-        group = Tasks.SystemManager.GROUP
-        workingDir = projectSrcDir
+    val outputFile = File("${outputsDir.get()}/$buildType", SystemManager.EXE_FILE_NAME)
+
+    val publishTask = tasks.register<Exec>("publish${buildType.name}Exe") {
+        group = Group.PUBLISHER
+        setWorkingDir(projectSrcDir)
 
         inputs.files(
             fileTree(projectSrcDir) {
@@ -35,12 +32,11 @@ listOf(
             },
         )
 
-        outputs.files(fileTree(outputFile.parent))
+        outputs.file(outputFile)
 
         commandLine(
-            "dotnet",
-            "publish",
-            "-c", "$publishType,AssemblyName=${outputFile.name.substringBefore(".")}",
+            "dotnet", "publish",
+            "-c", "$buildType,AssemblyName=${SystemManager.EXE_FILE_NAME.substringBefore(".")}",
             "-r", "win-x64",
             "-p:PublishSingleFile=true",
             "--self-contained", "false",
@@ -55,4 +51,15 @@ listOf(
             }
         }
     }
+
+    configurations.register("systemManager${buildType.name}Exe") {
+        isCanBeResolved = false
+        attributes {
+            attribute(buildTypeAttr, buildType.toString())
+        }
+        outgoing.artifact(outputFile) {
+            builtBy(publishTask)
+        }
+    }
 }
+

@@ -1,4 +1,7 @@
 import org.gradle.api.Project
+import org.gradle.api.attributes.Attribute
+
+val buildTypeAttr = Attribute.of("com.wisermit.hdrswitcher.buildType", String::class.java)
 
 val Project.startTasks: List<String> get() = gradle.startParameter.taskNames
 

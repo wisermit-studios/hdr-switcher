@@ -27,6 +27,7 @@ abstract class SystemInfo {
     abstract val systemDrive: File
 
     val userHomeDir: File get() = File(System.getProperty("user.home"))
+
     abstract val appSettingsDir: File
 
     abstract val applicationExtension: String
