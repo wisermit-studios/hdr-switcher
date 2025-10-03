@@ -36,10 +36,8 @@ namespace SystemManager.Core
             _processWatcher.Dispose();
         }
 
-        // TODO: Read HDR status from application.
         private void EnsureHdr()
         {
-            // TODO: Handle multiple starts.
             initialHdrStatus = HdrManager.IsEnabled();
 
             if (!initialHdrStatus)

@@ -10,7 +10,6 @@ namespace SystemManager
         [STAThread]
         static void Main(string[] args)
         {
-            // TODO: Read level from args.
             var logLevel = Log.LEVEL_DEBUG;
             Log.Level = logLevel;
 

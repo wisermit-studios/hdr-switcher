@@ -72,7 +72,6 @@ compose.desktop {
             packageVersion = BuildConfig.AppCompose.PACKAGE_VERSION
             appResourcesRootDir.set(appResourcesDir)
 
-            //TODO: upgradeUuid, iconFile, menuGroup(?).
             windows {
                 menu = true
                 shortcut = false

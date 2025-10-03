@@ -2,7 +2,6 @@ package com.wisermit.hdrswitcher.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// TODO: Switch = outline: 8C8C8C, thumb: (off: 5E5E5E, on: White)
 internal val brand = Color(0xFF0067C0)
 internal val brandForeground = Color.White
 internal val error = Color(0xFFC42B1C)
@@ -17,7 +16,6 @@ internal val outline1 = Color(0xFF8C8C8C)
 internal val outline2 = Color(0xFFD6D6D6)
 internal val outlineShadow = Color(0xFFE5E5E5)
 
-// Switch = outline: A0A0A0, thumb: (off: #CFCFCF, on: Black)
 internal val brandDark = Color(0xFF4CC2FF)
 internal val onBrandDark = Color(0xFF08151B)
 internal val errorDark = Color(0xFFE81123)
