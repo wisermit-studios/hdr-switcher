@@ -1,7 +1,7 @@
 package com.wisermit.hdrswitcher.domain.hdrsettings
 
 import com.wisermit.hdrswitcher.domain.UseCase
-import com.wisermit.hdrswitcher.infrastructure.systemmanager.SystemManager
+import com.wisermit.hdrswitcher.system.SystemManager
 
 class RefreshHdrStatusUseCase(
     private val systemManager: SystemManager,

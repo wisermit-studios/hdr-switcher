@@ -1,4 +1,4 @@
-package com.wisermit.hdrswitcher.infrastructure.systemmanager
+package com.wisermit.hdrswitcher.system
 
 import kotlinx.coroutines.flow.Flow
 import java.io.File

@@ -1,22 +1,20 @@
-package com.wisermit.hdrswitcher.infrastructure.systemmanager
+package com.wisermit.hdrswitcher.system
 
 import com.wisermit.hdrswitcher.framework.Log
-import com.wisermit.hdrswitcher.infrastructure.InputSimulator
-import com.wisermit.hdrswitcher.infrastructure.PowerShell
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.awt.event.KeyEvent
 import java.io.File
 
-private val TAG = WindowsSystemManager::class.java.simpleName
+private val TAG = SystemManagerImpl::class.java.simpleName
 
 private const val MONITOR_DATA_STORE_REG_PATH =
     """HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\MonitorDataStore"""
 private const val HDR_ENABLED_REG_KEY = "HDREnabled"
 private const val DATA_SEPARATOR = ","
 
-internal class WindowsSystemManager : SystemManager {
+internal class SystemManagerImpl : SystemManager {
 
     private val hdrStatus = MutableStateFlow<Boolean?>(null)
 

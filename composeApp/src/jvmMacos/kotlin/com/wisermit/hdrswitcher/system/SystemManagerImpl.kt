@@ -1,10 +1,10 @@
-package com.wisermit.hdrswitcher.infrastructure.systemmanager
+package com.wisermit.hdrswitcher.system
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.io.File
 
-internal class MacOsSystemManager : SystemManager {
+internal class SystemManagerImpl : SystemManager {
 
     override fun getHdrStatus(): Flow<Boolean?> = emptyFlow()
 

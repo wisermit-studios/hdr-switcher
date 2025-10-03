@@ -3,9 +3,9 @@ package com.wisermit.hdrswitcher.domain.application
 import com.wisermit.hdrswitcher.data.application.ApplicationStorage
 import com.wisermit.hdrswitcher.domain.UseCase
 import com.wisermit.hdrswitcher.framework.AppError
-import com.wisermit.hdrswitcher.infrastructure.SystemInfo
-import com.wisermit.hdrswitcher.infrastructure.systemmanager.SystemManager
 import com.wisermit.hdrswitcher.model.Application
+import com.wisermit.hdrswitcher.system.SystemInfo
+import com.wisermit.hdrswitcher.system.SystemManager
 import java.io.File
 
 class AddApplicationFileUseCase(

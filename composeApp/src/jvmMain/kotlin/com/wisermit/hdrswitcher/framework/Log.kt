@@ -7,36 +7,40 @@ object Log {
     private const val TAG_LENGTH = 28
     private const val PREFIX = "##"
 
-    private val isEnabled = true
+    var level = Level.None
 
     fun d(tag: String, msg: String) {
-        log(Priority.Debug, tag, msg)
+        log(Level.Debug, tag, msg)
     }
 
     fun i(tag: String, msg: String) {
-        log(Priority.Info, tag, msg)
+        log(Level.Info, tag, msg)
+    }
+
+    fun w(tag: String, msg: String) {
+        log(Level.Warning, tag, msg)
     }
 
     fun e(tag: String, msg: String, throwable: Throwable? = null) {
-        log(Priority.Error, tag, msg, throwable)
+        log(Level.Error, tag, msg, throwable)
     }
 
     @Deprecated("Remove before commit.")
     fun test(msg: String) {
-        log(Priority.Test, "", msg)
+        log(Level.Test, "", msg)
     }
 
-    private fun log(priority: Priority, tag: String, msg: String, tr: Throwable? = null) {
-        if (isEnabled) {
+    private fun log(level: Level, tag: String, msg: String, tr: Throwable? = null) {
+        if (level <= Log.level) {
             val pw = PrintWriter(System.out, true)
             val tag = tag.padEnd(TAG_LENGTH, ' ')
-            val priority = priority.name[0]
+            val priority = level.name[0]
             pw.println("$PREFIX,$tag,$priority,$msg")
             tr?.printStackTrace(pw)
         }
     }
 
-    private enum class Priority(id: Int) {
-        Test(0), Debug(3), Info(4), Error(6)
+    enum class Level(val value: Int) {
+        None(0), Error(3), Warning(4), Info(6), Debug(7), Test(8),
     }
 }

@@ -43,7 +43,7 @@ fun ConfigItem(
         }
         Column(modifier = Modifier.weight(1f)) {
             ProvideTextStyle(
-                typography.labelSmall,
+                typography.bodyMedium,
                 content = headlineContent
             )
 
@@ -58,7 +58,7 @@ fun ConfigItem(
         trailingContent?.let {
             Box(Modifier.padding(start = TrailingStartPadding)) {
                 ProvideTextStyle(
-                    typography.labelSmall,
+                    typography.bodySmall,
                     content = it
                 )
             }

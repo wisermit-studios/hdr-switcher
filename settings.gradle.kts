@@ -1,5 +1,8 @@
-rootProject.name = "HDRSwitcher"
+@file:Suppress("UnstableApiUsage")
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "HDRSwitcher"
 
 pluginManagement {
     repositories {
@@ -33,3 +36,4 @@ plugins {
 }
 
 include(":composeApp")
+include(":dotnet:systemManager")
