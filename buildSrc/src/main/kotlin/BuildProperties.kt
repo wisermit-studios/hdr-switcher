@@ -17,10 +17,8 @@ val Project.buildType: BuildType
 val Project.buildTarget: BuildTarget
     get() {
         return when {
-            startTasks.any { it.endsWith("Dmg") } -> BuildTarget.Macos
-            startTasks.any { task ->
-                listOf("Msi", "Exe", "Distributable").any { task.endsWith(it) }
-            } -> BuildTarget.Windows
+            startTasks.any { it.endsWith("Msi") || it.endsWith("Exe") } -> BuildTarget.Windows
+            startTasks.any { it.endsWith("Dmg") || it.endsWith("Pkg") } -> BuildTarget.Macos
             else -> localProperties.buildTarget
         }
     }

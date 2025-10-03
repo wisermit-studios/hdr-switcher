@@ -8,6 +8,9 @@ plugins {
     kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
+val appResourcesDir = project.layout.projectDirectory.dir("resources")
+val windowsAppResourcesBinDir = appResourcesDir.dir("windows/bin")
+
 logger.lifecycle("Running with buildTarget '$buildTarget' and buildType '$buildType'.")
 
 kotlin {
@@ -44,8 +47,10 @@ kotlin {
 
         jvmMain {
             val jvmPlatformTarget = "jvm${buildTarget.name}"
-            kotlin.srcDir("$projectDir/src/$jvmPlatformTarget/kotlin")
-            resources.srcDir("$projectDir/src/$jvmPlatformTarget/resources")
+            val jvmTargetDir = layout.projectDirectory.dir("src/$jvmPlatformTarget")
+
+            kotlin.srcDir(jvmTargetDir.dir("kotlin"))
+            resources.srcDir(jvmTargetDir.dir("resources"))
 
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
@@ -62,10 +67,12 @@ compose.desktop {
         mainClass = "com.wisermit.hdrswitcher.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Msi)
+            targetFormats(TargetFormat.Msi, TargetFormat.Dmg)
             packageName = BuildConfig.AppCompose.PACKAGE_NAME
             packageVersion = BuildConfig.AppCompose.PACKAGE_VERSION
+            appResourcesRootDir.set(appResourcesDir)
 
+            //TODO: upgradeUuid, iconFile, menuGroup(?).
             windows {
                 menu = true
                 shortcut = false
@@ -86,17 +93,17 @@ dependencies {
     systemManagerExe(projects.dotnet.systemManager)
 }
 
-val systemManagerWindowsTask = tasks.register<Copy>("importSystemManagerExeForJvmWindows") {
+val importSystemManagerExeTask = tasks.register<Copy>("importSystemManagerForWindowsResources") {
     description = "Copy the SystemManger EXE to jvmWindows resource folder."
 
     from(systemManagerExe)
-    into("${projectDir}/src/jvmWindows/resources/bin")
+    into(windowsAppResourcesBinDir)
 }
 
 afterEvaluate {
-    tasks.named("jvmProcessResources") {
+    tasks.named<Sync>("prepareAppResources") {
         if (buildTarget == BuildTarget.Windows) {
-            dependsOn(systemManagerWindowsTask)
+            dependsOn(importSystemManagerExeTask)
         }
     }
 }
